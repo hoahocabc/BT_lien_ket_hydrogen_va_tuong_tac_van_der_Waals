@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang='vi'>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bài tâp hóa học ABC</title>
+
+  <!-- Sử dụng Google Fonts cho giao diện hiện đại -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$']] },
+      chtml: { scale: 0.9 },
+      svg: { fontCache: 'global' }
+    };
+    function drop(ev) {
+      ev.preventDefault();
+      var data = ev.dataTransfer.getData("text");
+      var draggable = document.getElementById(data);
+      var dropZone = ev.target;
+      while (dropZone && !dropZone.classList.contains("dropzone") && dropZone.tagName !== "BODY") {
+        dropZone = dropZone.parentNode;
+      }
+      if (!dropZone) return;
+      var label = dropZone.querySelector(".drop-label");
+      if (label) {
+         if (label.nextSibling) {
+           dropZone.insertBefore(draggable, label.nextSibling);
+         } else {
+           dropZone.appendChild(draggable);
+         }
+      } else {
+         dropZone.appendChild(draggable);
+      }
+    }
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+  </script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .top-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+    .score-box {
+      background: #4CAF50;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 1.1em;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.8em;
+      color: #333;
+    }
+    .header h2 {
+      margin: 10px 0 0;
+      font-size: 1.2em;
+      color: #777;
+    }
+    .section {
+      margin-top: 30px;
+    }
+    .section h2 {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      color: #4285f4;
+    }
+    .question {
+      margin-bottom: 30px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #f2f2f2;
+    }
+    .question p {
+      margin: 0 0 10px 0;
+    }
+    .option {
+      margin: 5px 0;
+    }
+    .explanation {
+      margin-top: 10px;
+    }
+    button {
+      background: #4285f4;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    button:hover { background: #307cf1; }
+    /* Drag and drop */
+    .drag-drop-container {
+      display: flex;
+      gap: 10px;
+    }
+    .drag-column, .drop-column {
+      flex: 1;
+      background: #fff;
+      border: 1px dashed #ccc;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .draggable-item {
+      background: #e8f0fe;
+      border: 1px solid #c6dafc;
+      padding: 8px;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      cursor: move;
+      text-align: center;
+    }
+    .dropzone {
+      min-height: 50px;
+      border: 1px dashed #aaa;
+      margin: 5px 0;
+      border-radius: 4px;
+      padding: 10px;
+      text-align: center;
+    }
+    .drop-label {
+      font-weight: bold;
+      color: #555;
+    }
+    /* Updated CSS for blanks in Part IV */
+    .blank-container {
+      display: inline;
+    }
+    .blank-container input.auto-expand, .blank-container span {
+      white-space: normal;
+      min-width: 60px;
+      height: 25px;
+      font-size: 18px;
+      vertical-align: baseline;
+      box-sizing: border-box;
+      overflow-wrap: break-word;
+    }
+    mjx-container[jax="CHTML"][display="true"] {
+      margin-top: 0 !important;
+      margin-bottom: -1.5em !important;
+    }
+    /* Media query cho smartphone */
+    @media only screen and (max-width: 600px) {
+      body { padding: 10px; font-size: 16px; }
+      .container { padding: 15px; }
+      .header h1 { font-size: 1.8em; }
+      .header h2 { font-size: 1.2em; }
+      .score-box { font-size: 1em; padding: 8px 12px; }
+    }
+  </style>
+
+</head>
+<body>
+  <div class='container'>
+    <div class='top-row'><div class='score-box' id='scoreDisplay'>Tổng số điểm:</div></div>
+    <div class='header'><h1>BÀI TẬP LIÊN KẾT HYDROGEN VÀ TƯƠNG TÁC VAN DER WAALS</h1><h2>(HÓA HỌC ABC)</h2></div>
+<div class='section' id='part1' data-parttype='1'>
+<h2>Phần 1: Trắc nghiệm nhiều lựa chọn (có một phương án đúng)</h2>
+<div class='question' id='part1_q1'>
+<p><strong>Câu 1:</strong><br><br>So với liên kết ion và liên kết cộng hóa trị, liên kết hydrogen và tương tác van der Waals có đặc điểm gì? </p>
+<div class='option'><label><input type='radio' name='part1_q1' value='A'> <strong>A.</strong>  Mạnh hơn rất nhiều. </label></div>
+<div class='option'><label><input type='radio' name='part1_q1' value='B'> <strong>B.</strong>  Yếu hơn rất nhiều. </label></div>
+<div class='option'><label><input type='radio' name='part1_q1' value='C'> <strong>C.</strong>  Có độ bền tương đương. </label></div>
+<div class='option'><label><input type='radio' name='part1_q1' value='D'> <strong>D.</strong>  Không ảnh hưởng đến tính chất vật lý.</label></div>
+<div class='explanation' id='part1_q1_result' data-answer='B' data-solution='%3Cbr%3EC%C3%A1c%20t%C6%B0%C6%A1ng%20t%C3%A1c%20gi%E1%BB%AFa%20c%C3%A1c%20ph%C3%A2n%20t%E1%BB%AD%20y%E1%BA%BFu%20h%C6%A1n%20nhi%E1%BB%81u%20so%20v%E1%BB%9Bi%20li%C3%AAn%20k%E1%BA%BFt%20h%C3%B3a%20h%E1%BB%8Dc%20b%C3%AAn%20trong%20ph%C3%A2n%20t%E1%BB%AD.'></div>
+</div>
+<div class='question' id='part1_q2'>
+<p><strong>Câu 2:</strong><br><br>Nguyên tử nào sau đây thường tham gia hình thành liên kết hydrogen cùng với hydrogen? </p>
+<div class='option'><label><input type='radio' name='part1_q2' value='A'> <strong>A.</strong>  Carbon, Sulfur, Phosphorus. </label></div>
+<div class='option'><label><input type='radio' name='part1_q2' value='B'> <strong>B.</strong>  Sodium, Magnesium, Aluminum. </label></div>
+<div class='option'><label><input type='radio' name='part1_q2' value='C'> <strong>C.</strong>  Nitrogen, Oxygen, Fluorine. </label></div>
+<div class='option'><label><input type='radio' name='part1_q2' value='D'> <strong>D.</strong>  Chlorine, Bromine, Iodine.</label></div>
+<div class='explanation' id='part1_q2_result' data-answer='C' data-solution='%3Cbr%3E%C4%90%C3%A2y%20l%C3%A0%20c%C3%A1c%20nguy%C3%AAn%20t%E1%BB%AD%20c%C3%B3%20%C4%91%E1%BB%99%20%C3%A2m%20%C4%91i%E1%BB%87n%20l%E1%BB%9Bn%2C%20th%E1%BB%8Fa%20m%C3%A3n%20%C4%91i%E1%BB%81u%20ki%E1%BB%87n%20t%E1%BA%A1o%20li%C3%AAn%20k%E1%BA%BFt%20hydrogen.'></div>
+</div>
+<div class='question' id='part1_q3'>
+<p><strong>Câu 3:</strong><br><br>Trong mặt phẳng hai chiều, liên kết hydrogen được biểu diễn bằng ký hiệu nào? </p>
+<div class='option'><label><input type='radio' name='part1_q3' value='A'> <strong>A.</strong>  Dấu gạch nối (-). </label></div>
+<div class='option'><label><input type='radio' name='part1_q3' value='B'> <strong>B.</strong>  Dấu gạch đôi (=). </label></div>
+<div class='option'><label><input type='radio' name='part1_q3' value='C'> <strong>C.</strong>  Dấu mũi tên (→). </label></div>
+<div class='option'><label><input type='radio' name='part1_q3' value='D'> <strong>D.</strong>  Dấu ba chấm (...).</label></div>
+<div class='explanation' id='part1_q3_result' data-answer='D' data-solution='%3Cbr%3EQuy%20%C6%B0%E1%BB%9Bc%20bi%E1%BB%83u%20di%E1%BB%85n%20li%C3%AAn%20k%E1%BA%BFt%20hydrogen%20l%C3%A0%20d%C3%B9ng%20d%E1%BA%A5u%20ba%20ch%E1%BA%A5m%20%C4%91%E1%BB%83%20ph%C3%A2n%20bi%E1%BB%87t%20v%E1%BB%9Bi%20li%C3%AAn%20k%E1%BA%BFt%20c%E1%BB%99ng%20h%C3%B3a%20tr%E1%BB%8B.'></div>
+</div>
+<div class='question' id='part1_q4'>
+<p><strong>Câu 4:</strong><br><br>Tại sao nước (H₂O) có nhiệt độ sôi cao bất thường so với các hợp chất khác trong nhóm 6A như H₂S? </p>
+<div class='option'><label><input type='radio' name='part1_q4' value='A'> <strong>A.</strong>  Vì nước có khối lượng phân tử lớn nhất. </label></div>
+<div class='option'><label><input type='radio' name='part1_q4' value='B'> <strong>B.</strong>  Vì nước có liên kết cộng hóa trị bền vững hơn. </label></div>
+<div class='option'><label><input type='radio' name='part1_q4' value='C'> <strong>C.</strong>  Vì giữa các phân tử nước có liên kết hydrogen. </label></div>
+<div class='option'><label><input type='radio' name='part1_q4' value='D'> <strong>D.</strong>  Vì nước có tương tác van der Waals mạnh nhất.</label></div>
+<div class='explanation' id='part1_q4_result' data-answer='C' data-solution='%3Cbr%3ELi%C3%AAn%20k%E1%BA%BFt%20hydrogen%20m%E1%BA%A1nh%20l%C3%A0m%20t%C4%83ng%20n%C4%83ng%20l%C6%B0%E1%BB%A3ng%20c%E1%BA%A7n%20thi%E1%BA%BFt%20%C4%91%E1%BB%83%20chuy%E1%BB%83n%20n%C6%B0%E1%BB%9Bc%20t%E1%BB%AB%20tr%E1%BA%A1ng%20th%C3%A1i%20l%E1%BB%8Fng%20sang%20kh%C3%AD.'></div>
+</div>
+<div class='question' id='part1_q5'>
+<p><strong>Câu 5:</strong><br><br>Lưỡng cực vĩnh cửu xuất hiện phổ biến nhất ở loại phân tử nào? </p>
+<div class='option'><label><input type='radio' name='part1_q5' value='A'> <strong>A.</strong>  Phân tử cộng hóa trị không cực. </label></div>
+<div class='option'><label><input type='radio' name='part1_q5' value='B'> <strong>B.</strong>  Phân tử cộng hóa trị có cực (như HCl). </label></div>
+<div class='option'><label><input type='radio' name='part1_q5' value='C'> <strong>C.</strong>  Các nguyên tử khí hiếm như Argon. </label></div>
+<div class='option'><label><input type='radio' name='part1_q5' value='D'> <strong>D.</strong>  Các phân tử đơn chất như O₂.</label></div>
+<div class='explanation' id='part1_q5_result' data-answer='B' data-solution='%3Cbr%3ETrong%20c%C3%A1c%20ph%C3%A2n%20t%E1%BB%AD%20c%C3%B3%20c%E1%BB%B1c%2C%20m%E1%BA%ADt%20%C4%91%E1%BB%99%20electron%20ph%C3%A2n%20b%E1%BB%91%20kh%C3%B4ng%20%C4%91%E1%BB%81u%20t%E1%BA%A1o%20ra%20c%E1%BB%B1c%20%C3%A2m%20%28%CE%B4%E2%81%BB%29%20v%C3%A0%20c%E1%BB%B1c%20d%C6%B0%C6%A1ng%20%28%CE%B4%E2%81%BA%29%20%E1%BB%95n%20%C4%91%E1%BB%8Bnh.'></div>
+</div>
+<div class='question' id='part1_q6'>
+<p><strong>Câu 6:</strong><br><br>Lực London được hình thành do yếu tố nào sau đây? </p>
+<div class='option'><label><input type='radio' name='part1_q6' value='A'> <strong>A.</strong>  Sự hút nhau giữa các ion trái dấu. </label></div>
+<div class='option'><label><input type='radio' name='part1_q6' value='B'> <strong>B.</strong>  Sự xuất hiện của các lưỡng cực tạm thời. </label></div>
+<div class='option'><label><input type='radio' name='part1_q6' value='C'> <strong>C.</strong>  Sự cho - nhận cặp electron hóa trị. </label></div>
+<div class='option'><label><input type='radio' name='part1_q6' value='D'> <strong>D.</strong>  Lực hút giữa các nguyên tử kim loại.</label></div>
+<div class='explanation' id='part1_q6_result' data-answer='B' data-solution='%3Cbr%3EL%E1%BB%B1c%20London%20x%E1%BA%A3y%20ra%20do%20chuy%E1%BB%83n%20%C4%91%E1%BB%99ng%20t%E1%BB%A9c%20th%E1%BB%9Di%20c%E1%BB%A7a%20electron%20t%E1%BA%A1o%20ra%20c%C3%A1c%20l%C6%B0%E1%BB%A1ng%20c%E1%BB%B1c%20t%E1%BA%A1m%20th%E1%BB%9Di%20trong%20ph%C3%A2n%20t%E1%BB%AD.'></div>
+</div>
+<div class='question' id='part1_q7'>
+<p><strong>Câu 7:</strong><br><br>Yếu tố nào sau đây làm tăng cường tương tác van der Waals giữa các phân tử? </p>
+<div class='option'><label><input type='radio' name='part1_q7' value='A'> <strong>A.</strong>  Khối lượng phân tử giảm. </label></div>
+<div class='option'><label><input type='radio' name='part1_q7' value='B'> <strong>B.</strong>  Số lượng electron trong phân tử giảm. </label></div>
+<div class='option'><label><input type='radio' name='part1_q7' value='C'> <strong>C.</strong>  Diện tích tiếp xúc giữa các phân tử tăng. </label></div>
+<div class='option'><label><input type='radio' name='part1_q7' value='D'> <strong>D.</strong>  Phân tử có dạng hình cầu hoàn hảo.</label></div>
+<div class='explanation' id='part1_q7_result' data-answer='C' data-solution='%3Cbr%3EPh%C3%A2n%20t%E1%BB%AD%20d%E1%BA%A1ng%20d%C3%A0i%20ho%E1%BA%B7c%20ph%E1%BA%B3ng%20c%C3%B3%20di%E1%BB%87n%20t%C3%ADch%20ti%E1%BA%BFp%20x%C3%BAc%20l%E1%BB%9Bn%20h%C6%A1n%20s%E1%BA%BD%20c%C3%B3%20t%C6%B0%C6%A1ng%20t%C3%A1c%20m%E1%BA%A1nh%20h%C6%A1n%20ph%C3%A2n%20t%E1%BB%AD%20d%E1%BA%A1ng%20c%E1%BA%A7u.'></div>
+</div>
+<div class='question' id='part1_q8'>
+<p><strong>Câu 8:</strong><br><br>Thứ tự giảm dần độ bền của các loại tương tác là gì? </p>
+<div class='option'><label><input type='radio' name='part1_q8' value='A'> <strong>A.</strong>  Liên kết hydrogen > Lực Keesom > Lực London. </label></div>
+<div class='option'><label><input type='radio' name='part1_q8' value='B'> <strong>B.</strong>  Lực London > Lực Keesom > Liên kết hydrogen. </label></div>
+<div class='option'><label><input type='radio' name='part1_q8' value='C'> <strong>C.</strong>  Tương tác van der Waals > Liên kết hydrogen. </label></div>
+<div class='option'><label><input type='radio' name='part1_q8' value='D'> <strong>D.</strong>  Liên kết ion > Liên kết hydrogen > Liên kết cộng hóa trị.</label></div>
+<div class='explanation' id='part1_q8_result' data-answer='A' data-solution='%3Cbr%3ELi%C3%AAn%20k%E1%BA%BFt%20hydrogen%20b%E1%BB%81n%20h%C6%A1n%20t%C6%B0%C6%A1ng%20t%C3%A1c%20l%C6%B0%E1%BB%A1ng%20c%E1%BB%B1c%20-%20l%C6%B0%E1%BB%A1ng%20c%E1%BB%B1c%20%28Keesom%29%2C%20v%C3%A0%20t%C6%B0%C6%A1ng%20t%C3%A1c%20n%C3%A0y%20b%E1%BB%81n%20h%C6%A1n%20l%E1%BB%B1c%20London.'></div>
+</div>
+<div class='question' id='part1_q9'>
+<p><strong>Câu 9:</strong><br><br>Hiện tượng thằn lằn có thể đi trên trần nhà là nhờ loại tương tác nào? </p>
+<div class='option'><label><input type='radio' name='part1_q9' value='A'> <strong>A.</strong>  Liên kết ion. </label></div>
+<div class='option'><label><input type='radio' name='part1_q9' value='B'> <strong>B.</strong>  Liên kết hydrogen. </label></div>
+<div class='option'><label><input type='radio' name='part1_q9' value='C'> <strong>C.</strong>  Tương tác van der Waals. </label></div>
+<div class='option'><label><input type='radio' name='part1_q9' value='D'> <strong>D.</strong>  Lực từ trường.</label></div>
+<div class='explanation' id='part1_q9_result' data-answer='C' data-solution='%3Cbr%3EH%C3%A0ng%20t%E1%BB%B7%20t%C6%B0%C6%A1ng%20t%C3%A1c%20van%20der%20Waals%20c%E1%BB%B1c%20nh%E1%BB%8F%20t%E1%BB%AB%20c%C3%A1c%20s%E1%BB%A3i%20l%C3%B4ng%20d%C6%B0%E1%BB%9Bi%20ch%C3%A2n%20th%E1%BA%B1n%20l%E1%BA%B1n%20t%E1%BA%A1o%20n%C3%AAn%20l%E1%BB%B1c%20b%C3%A1m%20l%E1%BB%9Bn.'></div>
+</div>
+<div class='question' id='part1_q10'>
+<p><strong>Câu 10:</strong><br><br>Liên kết hydrogen bền nhất khi góc tạo bởi liên kết X-H và cặp electron của Y là: </p>
+<div class='option'><label><input type='radio' name='part1_q10' value='A'> <strong>A.</strong>  90⁰. </label></div>
+<div class='option'><label><input type='radio' name='part1_q10' value='B'> <strong>B.</strong>  120⁰. </label></div>
+<div class='option'><label><input type='radio' name='part1_q10' value='C'> <strong>C.</strong>  150⁰. </label></div>
+<div class='option'><label><input type='radio' name='part1_q10' value='D'> <strong>D.</strong>  180⁰.</label></div>
+<div class='explanation' id='part1_q10_result' data-answer='D' data-solution='%3Cbr%3EG%C3%B3c%20180%E2%81%B0%20%28%C4%91%C6%B0%E1%BB%9Dng%20th%E1%BA%B3ng%29%20l%C3%A0%20c%E1%BA%A5u%20tr%C3%BAc%20gi%C3%BAp%20li%C3%AAn%20k%E1%BA%BFt%20hydrogen%20%C4%91%E1%BA%A1t%20%C4%91%E1%BB%99%20b%E1%BB%81n%20t%E1%BB%91i%20%C4%91a.%3Cbr%3E'></div>
+</div>
+</div>
+<div class='section' id='part2' data-parttype='2'>
+<h2>Phần 2: Trắc nghiệm nhiều lựa chọn (có thể có nhiều đáp án đúng)</h2>
+<div class='question' id='part2_q1'>
+<p><strong>Câu 1:</strong><br><br>Những cặp chất nào sau đây có thể hình thành liên kết hydrogen giữa các phân tử? </p>
+<div class='option'><label><input type='checkbox' name='part2_q1' value='A'> <strong>A.</strong>  H₂O và NH₃. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q1' value='B'> <strong>B.</strong>  CH₃OH và H₂O. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q1' value='C'> <strong>C.</strong>  CH₄ và H₂S. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q1' value='D'> <strong>D.</strong>  HF và HF.</label></div>
+<div class='explanation' id='part2_q1_result' data-answer='A,B,D' data-solution='%3Cbr%3E%3Cbr%3ECH%E2%82%84%20v%C3%A0%20H%E2%82%82S%20kh%C3%B4ng%20th%E1%BB%8Fa%20m%C3%A3n%20%C4%91i%E1%BB%81u%20ki%E1%BB%87n%20%28nguy%C3%AAn%20t%E1%BB%AD%20li%C3%AAn%20k%E1%BA%BFt%20v%E1%BB%9Bi%20H%20ph%E1%BA%A3i%20c%C3%B3%20%C4%91%E1%BB%99%20%C3%A2m%20%C4%91i%E1%BB%87n%20l%E1%BB%9Bn%20nh%C6%B0%20N%2C%20O%2C%20F%29.'></div>
+</div>
+<div class='question' id='part2_q2'>
+<p><strong>Câu 2:</strong><br><br>Tương tác van der Waals bao gồm các loại lực nào sau đây? </p>
+<div class='option'><label><input type='checkbox' name='part2_q2' value='A'> <strong>A.</strong>  Lực London. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q2' value='B'> <strong>B.</strong>  Lực Keesom. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q2' value='C'> <strong>C.</strong>  Lực tĩnh điện ion. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q2' value='D'> <strong>D.</strong>  Lực Debye.</label></div>
+<div class='explanation' id='part2_q2_result' data-answer='A,B,D' data-solution='%3Cbr%3ET%C6%B0%C6%A1ng%20t%C3%A1c%20van%20der%20Waals%20chia%20l%C3%A0m%203%20lo%E1%BA%A1i%20ch%C3%ADnh%3A%20Keesom%20%28v%C4%A9nh%20c%E1%BB%ADu%29%2C%20Debye%20%28c%E1%BA%A3m%20%E1%BB%A9ng%29%20v%C3%A0%20London%20%28t%E1%BA%A1m%20th%E1%BB%9Di%29.'></div>
+</div>
+<div class='question' id='part2_q3'>
+<p><strong>Câu 3:</strong><br><br>Đặc điểm của liên kết hydrogen là gì? </p>
+<div class='option'><label><input type='checkbox' name='part2_q3' value='A'> <strong>A.</strong>  Liên tục bị đứt gãy và hình thành mới. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q3' value='B'> <strong>B.</strong>  Thời gian tồn tại rất ngắn (pico giây hoặc femto giây). </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q3' value='C'> <strong>C.</strong>  Có lực hút mạnh hơn tương tác van der Waals. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q3' value='D'> <strong>D.</strong>  Mạnh bằng liên kết cộng hóa trị.</label></div>
+<div class='explanation' id='part2_q3_result' data-answer='A,B,C' data-solution='%3Cbr%3EDo%20ph%C3%A2n%20t%E1%BB%AD%20lu%C3%B4n%20chuy%E1%BB%83n%20%C4%91%E1%BB%99ng%20n%C3%AAn%20li%C3%AAn%20k%E1%BA%BFt%20hydrogen%20k%C3%A9m%20b%E1%BB%81n%20v%C3%A0%20t%E1%BB%93n%20t%E1%BA%A1i%20r%E1%BA%A5t%20ng%E1%BA%AFn%20so%20v%E1%BB%9Bi%20li%C3%AAn%20k%E1%BA%BFt%20c%E1%BB%99ng%20h%C3%B3a%20tr%E1%BB%8B.'></div>
+</div>
+<div class='question' id='part2_q4'>
+<p><strong>Câu 4:</strong><br><br>Những yếu tố nào làm tăng nhiệt độ sôi của một chất? </p>
+<div class='option'><label><input type='checkbox' name='part2_q4' value='A'> <strong>A.</strong>  Khối lượng phân tử tăng. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q4' value='B'> <strong>B.</strong>  Số lượng electron tăng làm đám mây electron dễ biến dạng. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q4' value='C'> <strong>C.</strong>  Khả năng tạo liên kết hydrogen. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q4' value='D'> <strong>D.</strong>  Phân tử có nhiều nhánh và dạng hình cầu.</label></div>
+<div class='explanation' id='part2_q4_result' data-answer='A,B,C' data-solution='%3Cbr%3EPh%C3%A2n%20t%E1%BB%AD%20c%C3%B3%20nh%C3%A1nh%20l%C3%A0m%20gi%E1%BA%A3m%20di%E1%BB%87n%20t%C3%ADch%20ti%E1%BA%BFp%20x%C3%BAc%2C%20d%E1%BA%ABn%20%C4%91%E1%BA%BFn%20gi%E1%BA%A3m%20t%C6%B0%C6%A1ng%20t%C3%A1c%20van%20der%20Waals%20v%C3%A0%20nhi%E1%BB%87t%20%C4%91%E1%BB%99%20s%C3%B4i.'></div>
+</div>
+<div class='question' id='part2_q5'>
+<p><strong>Câu 5:</strong><br><br>Lưỡng cực tạm thời có thể xuất hiện ở những đối tượng nào? </p>
+<div class='option'><label><input type='checkbox' name='part2_q5' value='A'> <strong>A.</strong>  Các khí hiếm như Argon. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q5' value='B'> <strong>B.</strong>  Các phân tử không phân cực như O₂. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q5' value='C'> <strong>C.</strong>  Các phân tử có cực như HCl. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q5' value='D'> <strong>D.</strong>  Chỉ xuất hiện trong các ion dương.</label></div>
+<div class='explanation' id='part2_q5_result' data-answer='A,B,C' data-solution='%3Cbr%3EL%C6%B0%E1%BB%A1ng%20c%E1%BB%B1c%20t%E1%BA%A1m%20th%E1%BB%9Di%20%28l%E1%BB%B1c%20London%29%20c%C3%B3%20m%E1%BA%B7t%20%E1%BB%9F%20m%E1%BB%8Di%20lo%E1%BA%A1i%20ph%C3%A2n%20t%E1%BB%AD%20v%C3%A0%20nguy%C3%AAn%20t%E1%BB%AD%20do%20s%E1%BB%B1%20chuy%E1%BB%83n%20%C4%91%E1%BB%99ng%20kh%C3%B4ng%20ng%E1%BB%ABng%20c%E1%BB%A7a%20electron.'></div>
+</div>
+<div class='question' id='part2_q6'>
+<p><strong>Câu 6:</strong><br><br>Liên kết hydrogen có thể hình thành giữa các đối tượng nào? </p>
+<div class='option'><label><input type='checkbox' name='part2_q6' value='A'> <strong>A.</strong>  Các phân tử cùng loại (ví dụ: nước với nước). </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q6' value='B'> <strong>B.</strong>  Các phân tử khác loại (ví dụ: nước với HF). </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q6' value='C'> <strong>C.</strong>  Giữa hai nguyên tử Hydrogen với nhau. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q6' value='D'> <strong>D.</strong>  Giữa các nguyên tử khí hiếm.</label></div>
+<div class='explanation' id='part2_q6_result' data-answer='A,B' data-solution='%3Cbr%3ETheo%20ngu%E1%BB%93n%20t%C3%A0i%20li%E1%BB%87u%2C%20li%C3%AAn%20k%E1%BA%BFt%20hydrogen%20c%C3%B3%20th%E1%BB%83%20h%C3%ACnh%20th%C3%A0nh%20gi%E1%BB%AFa%20c%C3%A1c%20ph%C3%A2n%20t%E1%BB%AD%20c%C3%B9ng%20lo%E1%BA%A1i%20ho%E1%BA%B7c%20kh%C3%A1c%20lo%E1%BA%A1i.'></div>
+</div>
+<div class='question' id='part2_q7'>
+<p><strong>Câu 7:</strong><br><br>Khi so sánh các chất có khối lượng phân tử tương đương, thứ tự nhiệt độ sôi đúng là: </p>
+<div class='option'><label><input type='checkbox' name='part2_q7' value='A'> <strong>A.</strong>  Hợp chất ion > Hợp chất có liên kết hydrogen. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q7' value='B'> <strong>B.</strong>  Hợp chất có liên kết hydrogen > Hợp chất chỉ có lực London. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q7' value='C'> <strong>C.</strong>  Hợp chất có tương tác lưỡng cực - lưỡng cực > Hợp chất có liên kết hydrogen. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q7' value='D'> <strong>D.</strong>  Methanol > Oxygen.</label></div>
+<div class='explanation' id='part2_q7_result' data-answer='A,B,D' data-solution='%3Cbr%3ELi%C3%AAn%20k%E1%BA%BFt%20hydrogen%20b%E1%BB%81n%20h%C6%A1n%20t%C6%B0%C6%A1ng%20t%C3%A1c%20l%C6%B0%E1%BB%A1ng%20c%E1%BB%B1c%20-%20l%C6%B0%E1%BB%A1ng%20c%E1%BB%B1c%20n%C3%AAn%20nhi%E1%BB%87t%20%C4%91%E1%BB%99%20s%C3%B4i%20cao%20h%C6%A1n.'></div>
+</div>
+<div class='question' id='part2_q8'>
+<p><strong>Câu 8:</strong><br><br>Tương tác van der Waals phụ thuộc vào: </p>
+<div class='option'><label><input type='checkbox' name='part2_q8' value='A'> <strong>A.</strong>  Độ phân cực của phân tử. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q8' value='B'> <strong>B.</strong>  Khả năng biến dạng của đám mây electron. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q8' value='C'> <strong>C.</strong>  Hình dạng phân tử. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q8' value='D'> <strong>D.</strong>  Tốc độ ánh sáng.</label></div>
+<div class='explanation' id='part2_q8_result' data-answer='A,B,C' data-solution='%3Cbr%3EC%C3%A1c%20y%E1%BA%BFu%20t%E1%BB%91%20n%C3%A0y%20quy%E1%BA%BFt%20%C4%91%E1%BB%8Bnh%20%C4%91%E1%BB%99%20m%E1%BA%A1nh%20c%E1%BB%A7a%20c%C3%A1c%20lo%E1%BA%A1i%20l%E1%BB%B1c%20Keesom%2C%20Debye%20v%C3%A0%20London.'></div>
+</div>
+<div class='question' id='part2_q9'>
+<p><strong>Câu 9:</strong><br><br>Lực London tăng lên khi: </p>
+<div class='option'><label><input type='checkbox' name='part2_q9' value='A'> <strong>A.</strong>  Khối lượng phân tử tăng. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q9' value='B'> <strong>B.</strong>  Số electron trong phân tử tăng. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q9' value='C'> <strong>C.</strong>  Nhiệt độ môi trường tăng cực cao. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q9' value='D'> <strong>D.</strong>  Phân tử có cấu trúc dài, không phân nhánh.</label></div>
+<div class='explanation' id='part2_q9_result' data-answer='A,B,D' data-solution='%3Cbr%3EKh%E1%BB%91i%20l%C6%B0%E1%BB%A3ng%20l%E1%BB%9Bn%20v%C3%A0%20nhi%E1%BB%81u%20electron%20l%C3%A0m%20%C4%91%C3%A1m%20m%C3%A2y%20electron%20d%E1%BB%85%20bi%E1%BA%BFn%20d%E1%BA%A1ng%2C%20t%E1%BA%A1o%20l%C6%B0%E1%BB%A1ng%20c%E1%BB%B1c%20t%E1%BA%A1m%20th%E1%BB%9Di%20m%E1%BA%A1nh%20h%C6%A1n.'></div>
+</div>
+<div class='question' id='part2_q10'>
+<p><strong>Câu 10:</strong><br><br>Ứng dụng thực tế của tương tác van der Waals bao gồm: </p>
+<div class='option'><label><input type='checkbox' name='part2_q10' value='A'> <strong>A.</strong>  Chế tạo băng dính sinh học. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q10' value='B'> <strong>B.</strong>  Giải thích khả năng leo trèo của thằn lằn. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q10' value='C'> <strong>C.</strong>  Sản xuất điện năng từ hạt nhân. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q10' value='D'> <strong>D.</strong>  Giải thích trạng thái tập hợp của các chất khí ở nhiệt độ thấp.</label></div>
+<div class='explanation' id='part2_q10_result' data-answer='A,B,D' data-solution='%3Cbr%3ET%C6%B0%C6%A1ng%20t%C3%A1c%20n%C3%A0y%20gi%C3%BAp%20th%E1%BA%B1n%20l%E1%BA%B1n%20b%C3%A1m%20t%C6%B0%E1%BB%9Dng%20v%C3%A0%20l%C3%A0%20nguy%C3%AAn%20l%C3%BD%20cho%20b%C4%83ng%20d%C3%ADnh%20sinh%20h%E1%BB%8Dc%3B%20n%C3%B3%20c%C5%A9ng%20gi%C3%BAp%20c%C3%A1c%20ph%C3%A2n%20t%E1%BB%AD%20kh%C3%AD%20h%C3%BAt%20nhau%20%C4%91%E1%BB%83%20h%C3%B3a%20l%E1%BB%8Fng%20%E1%BB%9F%20nhi%E1%BB%87t%20%C4%91%E1%BB%99%20th%E1%BA%A5p.%3Cbr%3E'></div>
+</div>
+</div>
+<div class='section' id='part3' data-parttype='3'>
+<h2>Phần 3: Trắc nghiệm trả lời ngắn</h2>
+<div class='question' id='part3_q1'>
+<p><strong>Câu 1:</strong><br><br>Liên kết hydrogen được biểu diễn bằng ký hiệu gì?</p>
+<div>Đáp án của bạn: <input type='text' id='part3_q1_input' class='auto-expand' style='width:60px; height:25px; font-size:18px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></div>
+<div class='explanation' id='part3_q1_result' data-answer=' Dấu ba chấm|| dấu ba chấm|| …' data-solution=''></div>
+</div>
+<div class='question' id='part3_q2'>
+<p><strong>Câu 2:</strong><br><br>Loại lực van der Waals nào có ở mọi phân tử?</p>
+<div>Đáp án của bạn: <input type='text' id='part3_q2_input' class='auto-expand' style='width:60px; height:25px; font-size:18px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></div>
+<div class='explanation' id='part3_q2_result' data-answer=' London' data-solution=''></div>
+</div>
+<div class='question' id='part3_q3'>
+<p><strong>Câu 3:</strong><br><br>Liên kết hydrogen ảnh hưởng thế nào đến nhiệt độ sôi?</p>
+<div>Đáp án của bạn: <input type='text' id='part3_q3_input' class='auto-expand' style='width:60px; height:25px; font-size:18px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></div>
+<div class='explanation' id='part3_q3_result' data-answer=' Làm tăng cao|| Làm tăng|| Làm tăng nhiệt độ sôi' data-solution=''></div>
+</div>
+<div class='question' id='part3_q4'>
+<p><strong>Câu 4:</strong><br><br>Đơn vị thời gian tồn tại của liên kết hydrogen?</p>
+<div>Đáp án của bạn: <input type='text' id='part3_q4_input' class='auto-expand' style='width:60px; height:25px; font-size:18px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></div>
+<div class='explanation' id='part3_q4_result' data-answer=' Pico giây|| Femto giây|| Pico hoặc femto giây' data-solution=''></div>
+</div>
+<div class='question' id='part3_q5'>
+<p><strong>Câu 5:</strong><br><br>Tương tác van der Waals là lực hút giữa các đối tượng nào với nhau?<br></p>
+<div>Đáp án của bạn: <input type='text' id='part3_q5_input' class='auto-expand' style='width:60px; height:25px; font-size:18px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></div>
+<div class='explanation' id='part3_q5_result' data-answer=' Các lưỡng cực' data-solution=''></div>
+</div>
+</div>
+<div class='section' id='part4' data-parttype='4'>
+<h2>Phần 4: Trắc nghiệm điền khuyết</h2>
+<div class='question' id='part4_q1'>
+<p><strong>Câu 1:</strong><br><br>Liên kết hydrogen hình thành khi nguyên tử H liên kết với nguyên tử có <span class='blank-container'><input type='text' id='part4_q1_blank1' data-answer=' độ âm điện' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> lớn và nguyên tử này phải có <span class='blank-container'><input type='text' id='part4_q1_blank2' data-answer=' cặp electron' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> chưa liên kết.</p>
+<div class='explanation' id='part4_q1_result' data-solution=''></div>
+</div>
+<div class='question' id='part4_q2'>
+<p><strong>Câu 2:</strong><br><br>Tương tác van der Waals <span class='blank-container'><input type='text' id='part4_q2_blank1' data-answer=' yếu hơn' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> hơn liên kết hydrogen nhưng quyết định <span class='blank-container'><input type='text' id='part4_q2_blank2' data-answer=' trạng thái' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> của vật chất.</p>
+<div class='explanation' id='part4_q2_result' data-solution=''></div>
+</div>
+<div class='question' id='part4_q3'>
+<p><strong>Câu 3:</strong><br><br>Phân tử dạng <span class='blank-container'><input type='text' id='part4_q3_blank1' data-answer=' dài|| phẳng|| dài hoặc phẳng' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> có diện tích tiếp xúc lớn làm <span class='blank-container'><input type='text' id='part4_q3_blank2' data-answer=' tăng' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> tương tác van der Waals.</p>
+<div class='explanation' id='part4_q3_result' data-solution=''></div>
+</div>
+<div class='question' id='part4_q4'>
+<p><strong>Câu 4:</strong><br><br>Lực Keesom xảy ra giữa các phân tử có <span class='blank-container'><input type='text' id='part4_q4_blank1' data-answer=' lưỡng cực' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> vĩnh cửu.</p>
+<div class='explanation' id='part4_q4_result' data-solution=''></div>
+</div>
+</div>
+
+    <div style='text-align:center; margin-top:30px;'>
+      <button id='submitBtn' onclick='gradeQuiz();'>Nộp bài</button>
+    </div>
+    <script>
+      function gradeQuiz() {
+         let score = 0, total = 0;
+         document.querySelectorAll('.section').forEach(function(section) {
+           let partType = section.getAttribute('data-parttype');
+           section.querySelectorAll('.question').forEach(function(q) {
+             total++;
+             let qid = q.id;
+             let feedback = "";
+             if (partType === "1") {
+               let selected = q.querySelector('input[name="' + qid + '"]:checked');
+               let correct = q.querySelector('.explanation').getAttribute('data-answer');
+               if (!selected) {
+                 feedback = '<span style="color:red;"><strong>Bạn chưa trả lời. Đáp án đúng: ' + correct + '</strong></span>';
+               } else if (selected.value === correct) {
+                 score++;
+                 feedback = '<span style="color:green;"><strong>Đúng (' + correct + ')</strong></span>';
+               } else {
+                 feedback = '<span style="color:red;"><strong>Sai. Đáp án đúng: ' + correct + '</strong></span>';
+               }
+             } else if (partType === "2") {
+               let selectedList = q.querySelectorAll('input[name="' + qid + '"]:checked');
+               if (selectedList.length === 0) {
+                 let correct = q.querySelector('.explanation').getAttribute('data-answer');
+                 feedback = '<span style="color:red;"><strong>Bạn chưa trả lời. Đáp án đúng: ' + correct + '</strong></span>';
+               } else {
+                 let userAnswers = [];
+                 selectedList.forEach(function(el) { userAnswers.push(el.value); });
+                 let correct = q.querySelector('.explanation').getAttribute('data-answer').split(',');
+                 userAnswers.sort(); correct.sort();
+                 if (userAnswers.join() === correct.join()) {
+                   score++;
+                   feedback = '<span style="color:green;"><strong>Đúng (' + correct.join(',') + ')</strong></span>';
+                 } else {
+                   feedback = '<span style="color:red;"><strong>Sai. Đáp án đúng: ' + correct.join(',') + '</strong></span>';
+                 }
+               }
+             } else if (partType === "3") {
+               let inputElem = document.getElementById(qid + '_input');
+               let userInput = inputElem.value.trim();
+               let correctData = q.querySelector('.explanation').getAttribute('data-answer');
+               let accepted = correctData.split('||').map(s => s.trim());
+               if (!userInput) {
+                 feedback = '<span style="color:red;"><strong>Bạn chưa trả lời. Đáp án đúng: ' + accepted.join(' hoặc ') + '</strong></span>';
+               } else {
+                 if (accepted.includes(userInput)) {
+                   score++;
+                   feedback = '<span style="color:green;"><strong>Đúng</strong></span>';
+                   inputElem.style.color = 'green';
+                 } else {
+                   feedback = '<span style="color:red;"><strong>Sai. Đáp án đúng: ' + accepted.join(' hoặc ') + '</strong></span>';
+                   inputElem.style.color = 'red';
+                 }
+                 inputElem.style.fontWeight = 'bold';
+                 inputElem.disabled = true;
+               }
+             } else if (partType === "4") {
+               let inputs = q.querySelectorAll('input.auto-expand');
+               let blankResults = [];
+               inputs.forEach(function(inp, index) {
+                 let accepted = inp.getAttribute('data-answer').split('||').map(s => s.trim());
+                 let userAnswer = inp.value.trim();
+                 if (userAnswer !== "") {
+                   if (accepted.includes(userAnswer)) {
+                     blankResults.push({blank: index+1, correct: true, answer: userAnswer, accepted: accepted});
+                   } else {
+                     blankResults.push({blank: index+1, correct: false, answer: userAnswer, accepted: accepted});
+                   }
+                 } else {
+                   blankResults.push({blank: index+1, answered: false, accepted: accepted});
+                 }
+               });
+               inputs.forEach(function(inp, index) {
+                 let res = blankResults[index];
+                 if (res.answered === false) { }
+                 else {
+                   let span = document.createElement('span');
+                   span.style.fontWeight = 'bold';
+                   if (res.correct) {
+                     span.style.color = 'green';
+                     span.textContent = res.answer;
+                   } else {
+                     span.style.color = 'red';
+                     span.textContent = res.answer;
+                   }
+                   inp.parentNode.replaceChild(span, inp);
+                 }
+               });
+               let wrongBlanks = [];
+               let unansweredBlanks = [];
+               blankResults.forEach(function(r) {
+                 if (r.answered === false) { unansweredBlanks.push(r.blank); }
+                 else if (!r.correct) { wrongBlanks.push(r.blank); }
+               });
+               if (wrongBlanks.length === 0 && unansweredBlanks.length === 0) {
+                 feedback = '<span style="color:green; font-weight:bold;">Đúng</span>';
+                 score++;
+               } else {
+                 let answerList = "";
+                 blankResults.forEach(function(r) {
+                   answerList += r.blank + ') ' + r.accepted.join(', hoặc ') + '<br>';
+                 });
+                 feedback = '<span style="color:red; font-weight:bold;">Sai.';
+                 if (wrongBlanks.length > 0) {
+                   feedback += ' Bạn trả lời sai vị trí ' + wrongBlanks.join(', ') + '.';
+                 }
+                 if (unansweredBlanks.length > 0) {
+                   feedback += ' Bạn chưa trả lời vị trí ' + unansweredBlanks.join(', ') + '.';
+                 }
+                 feedback += '<br>Đáp án đúng là:<br>' + answerList + '</span>';
+               }
+             } else if (partType === "5") {
+               let correctForQuestion = true;
+               q.querySelectorAll('.dropzone').forEach(function(dropZone) {
+                 let expected = dropZone.getAttribute('data-expected').trim();
+                 let userItems = Array.from(dropZone.querySelectorAll('.draggable-item')).map(e => e.getAttribute('data-label')).sort();
+                 let expectedItems = expected ? expected.split(',').map(s => s.trim()).sort() : [];
+                 if (JSON.stringify(userItems) !== JSON.stringify(expectedItems)) {
+                   correctForQuestion = false;
+                 }
+               });
+               if (correctForQuestion) {
+                 feedback = '<span style="color:green; font-weight:bold;">Đúng</span>';
+                 score++;
+               } else {
+                 let answerPairs = q.querySelector('.explanation').getAttribute('data-answer-pairs');
+                 feedback = '<span style="color:red; font-weight:bold;">Sai. Đáp án đúng là:<br>' + answerPairs.replace(/ \|\| /g, "<br>") + '</span>';
+               }
+             }
+             let expl = q.querySelector('.explanation');
+             expl.innerHTML = feedback;
+             let encodedSolution = expl.getAttribute('data-solution');
+             let solution = encodedSolution ? decodeURIComponent(encodedSolution) : "";
+             let cleanedSolution = solution.replace(/<br\s*\/?>/gi, '').trim();
+             if (cleanedSolution !== "") {
+                 expl.innerHTML += '<div style="margin-top:10px;"><strong>Lời giải:</strong></div><div>' + solution + '</div>';
+             }
+             expl.style.display = "block";
+           });
+         });
+         document.getElementById('scoreDisplay').innerHTML = 'Tổng số điểm: ' + score + ' / ' + total;
+         document.querySelectorAll('input, select').forEach(function(inp) { inp.disabled = true; });
+         let sb = document.getElementById('submitBtn'); if(sb) sb.disabled = true;
+         MathJax.typesetPromise();
+      }
+    </script>
+  </div>
+</body>
+</html>
